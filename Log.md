@@ -1,0 +1,2 @@
+- Need to change the API source from .env to .zshrc.
+- Build and install as instructed when done.

@@ -3,6 +3,10 @@
  
 ![Notion CLI Go](notioncli.gif)
 
+___
+I forked this repo up.
+- Use `NOTION_DATABASE_ID` instead of the page id.
+___
 
 Notion CLI Go is a command-line interface tool written in Go to manage tasks in Notion.so. This tool is a new iteration based on the original [Python project](https://github.com/kris-hansen/notion-cli), now built in Go for improved performance and portability. This project is a work in progress, some of the features mentioned below are aspirational and not yet implemented.
 

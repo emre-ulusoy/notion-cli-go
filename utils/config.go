@@ -25,7 +25,6 @@ func SetAPIConfig() (string, string) {
 
 	envPathWorkingDir := filepath.Join(workingDir, ".env")
 	err = godotenv.Load(envPathWorkingDir)
-
 	if err != nil {
 		// If the env file is not found in the working directory, try to load it from the home directory
 		err = godotenv.Load(envPathHomeDir)
@@ -40,9 +39,9 @@ func SetAPIConfig() (string, string) {
 		fmt.Println("NOTION_API_KEY environment variable not found")
 		os.Exit(1)
 	}
-	pageID, ok := os.LookupEnv("NOTION_PAGE_ID")
+	pageID, ok := os.LookupEnv("NOTION_DATABASE_ID")
 	if !ok {
-		fmt.Println("NOTION_PAGE_ID environment variable not found")
+		fmt.Println("NOTION_DATABASE_ID environment variable not found")
 		os.Exit(1)
 	}
 	return notionAPIKey, pageID
@@ -64,7 +63,6 @@ func GetLocalTimeZone() (*time.Location, error) {
 
 	envPathWorkingDir := filepath.Join(workingDir, ".env")
 	err = godotenv.Load(envPathWorkingDir)
-
 	if err != nil {
 		// If the env file is not found in the working directory, try to load it from the home directory
 		err = godotenv.Load(envPathHomeDir)

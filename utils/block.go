@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -118,7 +118,13 @@ func GetToDoBlocks(notionAPIKey, blockID string, localTimezone *time.Location) (
 			}
 			truncatedTime := lastEditedTime.In(localTimezone).Truncate(time.Minute)
 
-			element := fmt.Sprintf("%d [%s] %s (%s)", len(todoBlocks)+1, checked, block.ToDo.RichText[0].PlainText, truncatedTime.Format("2006-01-02 15:04"))
+			element := fmt.Sprintf(
+				"%d [%s] %s (%s)",
+				len(todoBlocks)+1,
+				checked,
+				block.ToDo.RichText[0].PlainText,
+				truncatedTime.Format("2006-01-02 15:04"),
+			)
 			todoBlocks = append(todoBlocks, element)
 		}
 	}
@@ -126,33 +132,57 @@ func GetToDoBlocks(notionAPIKey, blockID string, localTimezone *time.Location) (
 	return todoBlocks, nil
 }
 
-func AddNewToDoItem(notionAPIKey, pageID, text string) error {
+type CreatePageRequest struct {
+	Parent     Parent                     `json:"parent"`
+	Properties map[string]json.RawMessage `json:"properties"`
+}
+
+type Parent struct {
+	DatabaseID string `json:"database_id"`
+}
+
+func AddNewDatabasePage(notionAPIKey, databaseID, text string) error {
 	client := &http.Client{}
-	reqBody, err := json.Marshal(map[string]interface{}{
-		"children": []map[string]interface{}{
-			{
-				"object": "block",
-				"type":   "to_do",
-				"to_do": map[string]interface{}{
-					"rich_text": []map[string]interface{}{
-						{
-							"type": "text",
-							"text": map[string]interface{}{
-								"content": text,
-							},
-						},
+	properties := map[string]interface{}{
+		"Title": map[string]interface{}{
+			"title": []map[string]interface{}{
+				{
+					"text": map[string]string{
+						"content": text,
 					},
 				},
 			},
 		},
-	})
+	}
+
+	propertyJSON := make(map[string]json.RawMessage)
+	for key, val := range properties {
+		propJSON, err := json.Marshal(val)
+		if err != nil {
+			return err
+		}
+		propertyJSON[key] = propJSON
+	}
+
+	reqBody := CreatePageRequest{
+		Parent: Parent{
+			DatabaseID: databaseID,
+		},
+		Properties: propertyJSON,
+	}
+
+	reqJSON, err := json.Marshal(reqBody)
 	if err != nil {
 		return fmt.Errorf("error marshalling request body: %v", err)
 	}
 
-	req, err := http.NewRequest("PATCH", baseURL+"/blocks/"+pageID+"/children", bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(
+		"POST",
+		baseURL+"/pages",
+		bytes.NewBuffer(reqJSON),
+	)
 	if err != nil {
-		return fmt.Errorf("error creating request: %v", err)
+		return fmt.Errorf("error marshalling request body: %v", err)
 	}
 
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
@@ -166,8 +196,12 @@ func AddNewToDoItem(notionAPIKey, pageID, text string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("unexpected status code: %d, message: %s", resp.StatusCode, string(bodyBytes))
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf(
+			"unexpected status code: %d, message: %s",
+			resp.StatusCode,
+			string(bodyBytes),
+		)
 	}
 
 	return nil
@@ -204,11 +238,9 @@ func GetBlockID(notionAPIKey, pageID string, order int) (string, error) {
 	}
 
 	return blockList.Results[order-1].ID, nil
-
 }
 
 func MarkToDoBlockChecked(notionAPIKey, pageID string, order int) error {
-
 	blockID, err := GetBlockID(notionAPIKey, pageID, order)
 	if err != nil {
 		return err
@@ -233,7 +265,6 @@ func MarkToDoBlockChecked(notionAPIKey, pageID string, order int) error {
 	req.Header.Set("Authorization", "Bearer "+notionAPIKey)
 
 	resp, err := client.Do(req)
-
 	if err != nil {
 		return err
 	}
@@ -247,7 +278,6 @@ func MarkToDoBlockChecked(notionAPIKey, pageID string, order int) error {
 }
 
 func MarkToDoBlockUnChecked(notionAPIKey, pageID string, order int) error {
-
 	blockID, err := GetBlockID(notionAPIKey, pageID, order)
 	if err != nil {
 		return err
@@ -272,7 +302,6 @@ func MarkToDoBlockUnChecked(notionAPIKey, pageID string, order int) error {
 	req.Header.Set("Authorization", "Bearer "+notionAPIKey)
 
 	resp, err := client.Do(req)
-
 	if err != nil {
 		return err
 	}

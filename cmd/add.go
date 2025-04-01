@@ -10,13 +10,13 @@ import (
 
 var addCmd = &cobra.Command{
 	Use:   "add <task>",
-	Short: "Add a new task",
-	Long:  `Add a new task to the Notion ToDo task list page`,
+	Short: "Add a new db page",
+	Long:  `Add a new db page to the brain dump db`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		text := args[0]
-		notionAPIKey, pageID := utils.SetAPIConfig()
-		result := utils.AddNewToDoItem(notionAPIKey, pageID, text)
+		notionAPIKey, DBID := utils.SetAPIConfig()
+		result := utils.AddNewDatabasePage(notionAPIKey, DBID, text)
 		if result != nil {
 			fmt.Printf("Error adding new task: %s\n", result)
 			os.Exit(1)

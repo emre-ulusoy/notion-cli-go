@@ -1,2 +1,7 @@
 - Need to change the API source from .env to .zshrc.
 - Build and install as instructed when done.
+- (Notion API in Go)[https://pkg.go.dev/github.com/jomei/notionapi]
+- **To update the properties of a database row — rather than a column — use the Update page properties endpoint. To add a new row to a database, use the Create a page endpoint.**
+- (Working with Databases)[https://developers.notion.com/docs/working-with-databases]
+- (Create a Page)[https://developers.notion.com/reference/post-page]
+- Just gonna `alias` *dump* to be *notioncli add* for now.

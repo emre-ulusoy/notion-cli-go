@@ -2,19 +2,21 @@ package cmd
 
 import (
 	"fmt"
-	"notioncli/utils"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
+
+	"notioncli/utils"
 )
 
 var addCmd = &cobra.Command{
 	Use:   "add <task>",
 	Short: "Add a new db page",
 	Long:  `Add a new db page to the brain dump db`,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		text := args[0]
+		text := strings.Join(args, " ")
 		notionAPIKey, DBID := utils.SetAPIConfig()
 		result := utils.AddNewDatabasePage(notionAPIKey, DBID, text)
 		if result != nil {
@@ -22,7 +24,6 @@ var addCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		fmt.Printf("Task %s added.\n", text)
-
 	},
 }
 

@@ -5,3 +5,5 @@
 - (Working with Databases)[https://developers.notion.com/docs/working-with-databases]
 - (Create a Page)[https://developers.notion.com/reference/post-page]
 - Just gonna `alias` *dump* to be *notioncli add* for now.
+- [ ] fix `Error loading .env file:  open /Users/emre/.config/notioncli/.env: no such file or directory`]
+    - For now I'll create the file and dir `notioncli/.env` myself

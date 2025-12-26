@@ -4,7 +4,7 @@
 ![Notion CLI Go](notioncli.gif)
 
 ___
-I forked this repo up.
+I forked this repo up from kris-hansen.
 - Use `NOTION_DATABASE_ID` instead of the page id.
 ___
 
